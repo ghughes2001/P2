@@ -49,7 +49,22 @@ node* A()
 
     if (currentToken().tokenInstance == "\"")
     {
+        node* quote = new node("t1", "\"");
+        nodeForA->addChildren(quote); // add node for "
+        nextToken(); // move to next token
 
+        // now at t2 since we had a "
+        if (currentToken().tokenID == t2_tk)
+        {
+            node* tokenTwo = new node("t2", currentToken().tokenInstance);
+            nodeForA->addChildren(tokenTwo); // add node for t2
+            nextToken();
+        }
+        else
+        {
+            // missing t2 token so error in tree
+            parsingError
+        }
     }
 }
 
