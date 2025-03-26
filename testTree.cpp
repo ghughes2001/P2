@@ -41,3 +41,18 @@ void printTree(node* root, int indent)
         printTree(child, indent + 4);
     }
 }
+
+void deleteTree(node* root)
+{
+    if (root == nullptr)
+        return;
+    
+    // Recursively delete all children first
+    for (node* child : root->child)
+    {
+        deleteTree(child);
+    }
+    
+    // Then delete the current node
+    delete root;
+}

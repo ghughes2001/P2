@@ -12,8 +12,8 @@ Main.cpp:
 #include <fstream> // file handling
 #include <string>
 
-#include "testTree.hpp"
 #include "parser.hpp"
+#include "testTree.hpp"
 
 using namespace std;
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     //printing tree
     printTree(tokenTree, 0);
     // cleaning memory
-    delete tokenTree;
+    deleteTree(tokenTree);
 
     if (argc == 1) // cleaning user input
     {

@@ -12,5 +12,6 @@ testTree.hpp:
 #include "node.hpp"
 
 void printTree(node* root, int indent);
+void deleteTree(node* root);
 
 #endif
