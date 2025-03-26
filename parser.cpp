@@ -62,37 +62,6 @@ void nextToken()
     }
 }
 
-// hellper function to match tokenID and tokenInstance
-void match(TokenID expectedID) {
-    Token index = currentToken();
-    if (index.tokenID == expectedID) {
-        nextToken();
-    } else {
-        string expected;
-        switch (expectedID) {
-            case t1_tk: expected = "token type 1";
-                break;
-            case t2_tk: expected = "token type 2";
-                break;
-            case t3_tk: expected = "token type 3";
-                break;
-            case EOFTk: expected = "EOF";
-                break;
-        }
-        parsingError(expected);
-    }
-}
-
-// helper function to match token instance with expected string
-void matchInstance(const string& expectedInstance) {
-    Token index = currentToken();
-    if (index.tokenInstance == expectedInstance) {
-        nextToken();
-    } else {
-        parsingError("'" + expectedInstance + "'");
-    }
-}
-
 // S -> A(BB)
 node* S()
 {
@@ -125,6 +94,8 @@ node* S()
     {
         parsingError(")");
     }
+    // return result
+    return nodeForS;
 }
 
 node* A()
@@ -261,7 +232,6 @@ node* E()
         nodeForE->addChildren(F()); // first E
         nodeForE->addChildren(F()); // second E
         nodeForE->addChildren(F()); // third E
-
         // adding the B non-temrinal node
         nodeForE->addChildren(B());
     }
@@ -282,20 +252,20 @@ node* F()
     {
         node* tokenTwo = new node("t2", currentToken().tokenInstance);
         nodeForF->addChildren(tokenTwo);
-        nextToken:
+        nextToken();
     }
     // adding t3 token
     if (currentToken().tokenID == t3_tk)
     {
         node* tokenThree = new node("t3", currentToken().tokenInstance);
         nodeForF->addChildren(tokenThree);
-        nextToken:
+        nextToken();
     }
     if (currentToken().tokenInstance == "&")
     {
         node* andSymbol = new node("t1", "&");
         nodeForF->addChildren(andSymbol);
-        nextToken:
+        nextToken();
 
         // now the F's
         nodeForF->addChildren(F()); // first F
@@ -313,31 +283,28 @@ node* G()
 {
     node* nodeForG = new node("G");
 
-    if (currentToken().tokenID == t2_tk)
-    {
-        node* tokenOfTwo = new node("t2", currentToken().tokenInstance); // creating token 2 as node
-        nodeForG->addChildren(tokenOfTwo); // adding token 2 as child
-        nextToken();
-
-        // now the %
-        if (currentToken().tokenInstance == "%")
-        {
-            node* percent = new node("t1", "%"); // creating node for %
-            nodeForG->addChildren(percent); // adding node as child to G
-            nextToken();
-
-            // parsing F
-            nodeForG->addChildren(F());
-        }
-        else
-        {
-            parsingError("Need & for G non-terminal grammar");
-        }
-    }
-    else
+    if (currentToken().tokenID != t2_tk)
     {
         parsingError("Need t2_tk for G non-terminal grammar");
     }
+    
+    node* tokenOfTwo = new node("t2", currentToken().tokenInstance); // creating token 2 as node
+    nodeForG->addChildren(tokenOfTwo); // adding token 2 as child
+    nextToken();
+
+    // now the %
+    if (currentToken().tokenInstance != "%")
+    {
+        parsingError("Need % for G non-terminal grammar");
+    }
+    
+    node* percent = new node("t1", "%"); // creating node for %
+    nodeForG->addChildren(percent); // adding node as child to G
+    nextToken();
+
+    // parsing F
+    nodeForG->addChildren(F());
+
     // return result in G
     return nodeForG;
 }

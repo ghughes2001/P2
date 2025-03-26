@@ -15,28 +15,29 @@ using namespace std;
 
 void printTree(node* root, int indent)
 {
-    indent = 0; // start with no indent
-
     // base case
     if (root == nullptr)
         return;
     
+    // Printing indentation
     for (int i = 0; i < indent; i++)
-    {
+    {       
         cout << " ";
     }
-    // print node
-    cout << root << endl;
+    
+    // Print node type
+    cout << root->tokenType;
 
-    // chekcing if root has content
+    // Print token instance if it exists
     if (!root->tokenInstance.empty())
     {
         cout << " " << root->tokenInstance;
     }
     cout << endl;
 
-    for (node* children: root->child)
+    // Recursively print children with increased indentation
+    for (node* child : root->child)
     {
-        printTree(children, indent + 4);
+        printTree(child, indent + 4);
     }
 }

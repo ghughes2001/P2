@@ -1,5 +1,3 @@
-# P2
-
 P2: Parser and Tree Builder
 Due Wednesday, April 2, 2025
 • Implement parser and tree builder for the provided grammar (see below).
