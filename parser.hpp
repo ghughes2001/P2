@@ -12,6 +12,6 @@ parser.hpp:
 #include <string>
 #include "node.hpp"
 
-node* Parser(const std::string &file);
+node* parser(const std::string &file);
 
 #endif

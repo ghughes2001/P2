@@ -2,7 +2,7 @@
 Author: Grant Hughes
 Created: March 23, 2025
 
-parser.hpp:
+parser.cpp:
     - Implamentation of parser interface for BNF grammar
 */
 
@@ -31,6 +31,7 @@ node* C();
 node* D();
 node* E();
 node* F();
+node* G();
 
 // helper function to return current token
 Token& currentToken()
@@ -61,6 +62,37 @@ void nextToken()
     }
 }
 
+// hellper function to match tokenID and tokenInstance
+void match(TokenID expectedID) {
+    Token index = currentToken();
+    if (index.tokenID == expectedID) {
+        nextToken();
+    } else {
+        string expected;
+        switch (expectedID) {
+            case t1_tk: expected = "token type 1";
+                break;
+            case t2_tk: expected = "token type 2";
+                break;
+            case t3_tk: expected = "token type 3";
+                break;
+            case EOFTk: expected = "EOF";
+                break;
+        }
+        parsingError(expected);
+    }
+}
+
+// helper function to match token instance with expected string
+void matchInstance(const string& expectedInstance) {
+    Token index = currentToken();
+    if (index.tokenInstance == expectedInstance) {
+        nextToken();
+    } else {
+        parsingError("'" + expectedInstance + "'");
+    }
+}
+
 // S -> A(BB)
 node* S()
 {
@@ -76,7 +108,7 @@ node* S()
     }
     else
     {
-        parsingError("(");
+        parsingError("( in S non-terminal grammar");
     }
     // adding the two B non-terminals
     nodeForS->addChildren(B());
@@ -115,7 +147,7 @@ node* A()
         else
         {
             // missing t2 token so error in tree
-            parsingError("Needs t2Tk");
+            parsingError("Needs t2_tk for non-terminal A grammar");
         }
     }
     else
@@ -153,6 +185,11 @@ node* B()
     {
         nodeForB->addChildren(E());
     }
+    // adding G non-terminal
+    if (current.tokenID == t2_tk)
+    {
+        nodeForB->addChildren(G());
+    }
     // returning one of the B options
     return nodeForB;
 }
@@ -172,7 +209,7 @@ node* C()
             nodeForC->addChildren(t2);
             nextToken();
         } else {
-            parsingError("Need t2Tk");
+            parsingError("Need t2_tk");
         }
     }
     else if (currentToken().tokenInstance == "!") {
@@ -183,7 +220,7 @@ node* C()
         // Parse F
         nodeForC->addChildren(F());
     } else {
-        parsingError("Need '#' or '!' for C non-terminal");
+        parsingError("Need '#' or '!' for C non-terminal grammar");
     }
     // returnng one of the temrinals
     return nodeForC;
@@ -204,7 +241,7 @@ node* D()
     }
     else
     {
-        parsingError("Need $ for D non-terminal");
+        parsingError("Need $ for D non-terminal grammar");
     }
     // returning the result
     return nodeForD;
@@ -230,7 +267,7 @@ node* E()
     }
     else
     {
-        parsingError("Need \"'\" for E non-terminal grammar");
+        parsingError("Need ' for E non-terminal grammar");
     }
     // return result
     return nodeForE;
@@ -238,5 +275,86 @@ node* E()
 
 node* F()
 {
-    
+    node* nodeForF = new node("F"); // creating non-terminal node for F
+
+    // adding t2 token
+    if (currentToken().tokenID == t2_tk)
+    {
+        node* tokenTwo = new node("t2", currentToken().tokenInstance);
+        nodeForF->addChildren(tokenTwo);
+        nextToken:
+    }
+    // adding t3 token
+    if (currentToken().tokenID == t3_tk)
+    {
+        node* tokenThree = new node("t3", currentToken().tokenInstance);
+        nodeForF->addChildren(tokenThree);
+        nextToken:
+    }
+    if (currentToken().tokenInstance == "&")
+    {
+        node* andSymbol = new node("t1", "&");
+        nodeForF->addChildren(andSymbol);
+        nextToken:
+
+        // now the F's
+        nodeForF->addChildren(F()); // first F
+        nodeForF->addChildren(F()); // second F
+    }
+    else
+    {
+        parsingError("Need t2_tk, t3_tk, or & for F non-termial grammar");
+    }
+    // return result of F
+    return nodeForF;
+}
+
+node* G()
+{
+    node* nodeForG = new node("G");
+
+    if (currentToken().tokenID == t2_tk)
+    {
+        node* tokenOfTwo = new node("t2", currentToken().tokenInstance); // creating token 2 as node
+        nodeForG->addChildren(tokenOfTwo); // adding token 2 as child
+        nextToken();
+
+        // now the %
+        if (currentToken().tokenInstance == "%")
+        {
+            node* percent = new node("t1", "%"); // creating node for %
+            nodeForG->addChildren(percent); // adding node as child to G
+            nextToken();
+
+            // parsing F
+            nodeForG->addChildren(F());
+        }
+        else
+        {
+            parsingError("Need & for G non-terminal grammar");
+        }
+    }
+    else
+    {
+        parsingError("Need t2_tk for G non-terminal grammar");
+    }
+    // return result in G
+    return nodeForG;
+}
+
+node* parser(const string &fileName)
+{
+    // opening file in read
+    ifstream file(fileName);
+    tokens = scanner(file, fileName, 0);
+    tokenSize = 0;
+
+    // creating the root of tree (start of grammar)
+    node* root = S();
+
+    if (currentToken().tokenID != EOFTk)
+    {
+        parsingError("End of file");
+    }
+    return root;
 }

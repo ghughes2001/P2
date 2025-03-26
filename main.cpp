@@ -12,12 +12,16 @@ Main.cpp:
 #include <fstream> // file handling
 #include <string>
 
-#include "testscanner.hpp"
+#include "testTree.hpp"
+#include "parser.hpp"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
+    // adding filename to get either input from user or from command line
+    string fileName;
+
     // checking if there is more than 1 filename present
     // And printing erro message if so (must be only 1 file)
     if (argc >= 3)
@@ -33,24 +37,21 @@ int main(int argc, char* argv[])
     if (argc == 2)
     {
         // variables
-        string file = argv[1];
+        fileName = argv[1];
 
-        ifstream myFile(file);
+        ifstream myFile(fileName);
         if (!myFile.is_open())
         {
             cout << "Error: File could not be found" << endl;
             exit(1);
         }
         myFile.close();
-
-        testScanner(file); // calliing testScanner(const string &file) method
     }
     if (argc == 1)
     {
         // variables for user input
         string inputLine;
-        string word;
-        ofstream writeFile("output.txt", ios::app);
+        ofstream writeFile("output.txt", ios::trunc);
 
         if (!writeFile.is_open())
         {
@@ -66,22 +67,22 @@ int main(int argc, char* argv[])
         }
         writeFile.close();
 
-        // seeing if file is openable
-        ifstream userFile("output.txt");
-        if (!userFile.is_open())
-        {
-            cout << "Error: User file not opened" << endl;
-            exit(1);
-        }
-        userFile.close();
-        
-        cout << "Output: " << endl;
-        testScanner("output.txt"); // calliing testScanner(const string &file) method
+        fileName = "output.txt";
 
+    }
+    // calling parser
+    node* tokenTree = parser(fileName);
+    //printing tree
+    printTree(tokenTree, 0);
+    // cleaning memory
+    delete tokenTree;
+
+    if (argc == 1) // cleaning user input
+    {
         // erasing contents of file so the next user dosn't have it
         ofstream fileToClear("output.txt", ios::out | ios::trunc);
         fileToClear.close();
-
     }
+
     return 0;
 }
