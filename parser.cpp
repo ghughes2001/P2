@@ -18,11 +18,17 @@ parser.hpp:
 
 using namespace std;
 
+
 // global varaibels to track tokens
 static vector<Token> tokens;
 static size_t tokenSize = 0;
 
-// return current token
+// prototypes
+node* S();
+node* A();
+node* B();
+
+// helper function to return current token
 Token& currentToken()
 {
     if (tokenSize < tokens.size())
@@ -34,12 +40,54 @@ Token& currentToken()
     return EOFToken;
 }
 
+// helper fucntion to return errors in grammer
+void parsingError(const string& expected) {
+    Token current = currentToken();
+    cout << "PARSER ERROR: Expected " << expected << ", got '" 
+         << current.tokenInstance << "' on line " << current.lineNumber << endl;
+    exit(1);
+}
+
 // return the next token
 void nextToken()
 {
     if (tokenSize < tokens.size())
     {
         tokenSize++;
+    }
+}
+
+// S -> A(BB)
+node* S()
+{
+    node* nodeForS = new node("S"); // creating non-terminal S(root)
+
+    nodeForS->addChildren(A()); // creating A (non-terminal)(node)
+
+    if (currentToken().tokenInstance == "(")
+    {
+        node* leftParenthesis = new node("t1", "("); // creating left parenth
+        nodeForS->addChildren(leftParenthesis); // adding left penth to tree as child
+        nextToken();
+    }
+    else
+    {
+        parsingError("(");
+    }
+    // adding the two B non-terminals
+    nodeForS->addChildren(B());
+    nodeForS->addChildren(B());
+
+    // handing the end parenth (')')
+    if (currentToken().tokenInstance == ")")
+    {
+        node* rightParenthesis = new node("t1", ")"); // creating right parenth
+        nodeForS->addChildren(rightParenthesis); // adding right penth to tree as child
+        nextToken();
+    }
+    else
+    {
+        parsingError(")");
     }
 }
 
@@ -63,17 +111,21 @@ node* A()
         else
         {
             // missing t2 token so error in tree
-            parsingError
+            parsingError("Needs t2tk");
         }
     }
+    else
+    {
+        node* empty = new node("EMPTY");
+        nodeForA->addChildren(empty); // add the empty node as child
+    }
+    // return either (" t2) or (empty) node
+    return nodeForA;
 }
 
-// S -> A(BB)
-node* s()
+node* B()
 {
-    node* nodeForS = new node("S"); // creating non-terminal S(root)
+    node* nodeForB = new node("B"); // creating non-terminal B node
 
-    nodeForS->addChildren(A()); // creating A (non-terminal)(node)
-
-
+    
 }
