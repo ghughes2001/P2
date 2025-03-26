@@ -27,6 +27,8 @@ static size_t tokenSize = 0;
 node* S();
 node* A();
 node* B();
+node* C();
+node* D();
 
 // helper function to return current token
 Token& currentToken()
@@ -111,7 +113,7 @@ node* A()
         else
         {
             // missing t2 token so error in tree
-            parsingError("Needs t2tk");
+            parsingError("Needs t2Tk");
         }
     }
     else
@@ -127,5 +129,76 @@ node* B()
 {
     node* nodeForB = new node("B"); // creating non-terminal B node
 
-    
+    Token current  = currentToken(); // getting current token
+
+    // adding S
+    if (current.tokenInstance == "\"" || current.tokenInstance == "(")
+    {
+        nodeForB->addChildren(S());
+    }
+    // adding C non-terminal
+    if (current.tokenInstance == "#" || current.tokenInstance == "!")
+    {
+        nodeForB ->addChildren(C());
+    }
+    // adding D non-terminal
+    if (current.tokenInstance == "$")
+    {
+        nodeForB->addChildren(D());
+    }
+    // returning one of the B options
+    return nodeForB;
+}
+
+node* C()
+{
+    node* nodeForC = new node("C"); // creating C non-terminal node
+
+    if (currentToken().tokenInstance == "#") {
+        node* hashNumber = new node("t1", "#");
+        nodeForC->addChildren(hashNumber);
+        nextToken();
+        
+        // next token is t2
+        if (currentToken().tokenID == t2_tk) {
+            node* t2 = new node("t2", currentToken().tokenInstance);
+            nodeForC->addChildren(t2);
+            nextToken();
+        } else {
+            parsingError("Need t2Tk");
+        }
+    }
+    else if (currentToken().tokenInstance == "!") {
+        node* exclamation = new node("t1", "!");
+        nodeForC->addChildren(exclamation);
+        nextToken();
+        
+        // Parse F
+        nodeForC->addChildren(F());
+    } else {
+        parsingError("Need '#' or '!' for C non-terminal");
+    }
+    // returnng one of the temrinals
+    return nodeForC;
+}
+
+node* D()
+{
+    node* nodeForD = new node("D"); // creating D non-terminal node
+
+    if (currentToken().tokenInstance == "$")
+    {
+        node* dollar = new node("t1", "$"); // creating dollar node
+        nodeForD->addChildren(dollar); // adding dollar node
+        nextToken();
+
+        // adding/creating F non-temrinal node
+        nodeForD->addChildren(F());
+    }
+    else
+    {
+        parsingError("Need $ for D non-terminal");
+    }
+    // returning the result
+    return nodeForD;
 }
