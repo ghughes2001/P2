@@ -6,9 +6,9 @@ parser.cpp:
     - Implamentation of parser interface for BNF grammar
 */
 
-#include "scanner.hpp"
 #include "token.hpp"
 #include "node.hpp"
+#include "scanner.hpp"
 #include "parser.hpp"
 
 #include <iostream>
