@@ -29,6 +29,8 @@ node* A();
 node* B();
 node* C();
 node* D();
+node* E();
+node* F();
 
 // helper function to return current token
 Token& currentToken()
@@ -146,6 +148,11 @@ node* B()
     {
         nodeForB->addChildren(D());
     }
+    // adding E non-terminal
+    if (current.tokenInstance == "'")
+    {
+        nodeForB->addChildren(E());
+    }
     // returning one of the B options
     return nodeForB;
 }
@@ -201,4 +208,35 @@ node* D()
     }
     // returning the result
     return nodeForD;
+}
+
+node* E()
+{
+    node* nodeForE = new node("E"); // adding non-temrinal node E
+
+    if (currentToken().tokenInstance == "'")
+    {
+        node* quote = new node("t1", "'"); // creating node for quote
+        nodeForE->addChildren(quote); // adding quote as child for E
+        nextToken();
+
+        // adding the F's non-terminal node
+        nodeForE->addChildren(F()); // first E
+        nodeForE->addChildren(F()); // second E
+        nodeForE->addChildren(F()); // third E
+
+        // adding the B non-temrinal node
+        nodeForE->addChildren(B());
+    }
+    else
+    {
+        parsingError("Need \"'\" for E non-terminal grammar");
+    }
+    // return result
+    return nodeForE;
+}
+
+node* F()
+{
+    
 }
