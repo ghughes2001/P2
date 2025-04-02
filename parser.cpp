@@ -132,37 +132,49 @@ node* A()
 
 node* B()
 {
-    node* nodeForB = new node("B"); // creating non-terminal B node
+    node* nodeForB = new node("B");  // creating non-terminal B node
+    Token current = currentToken();  // getting current token
 
-    Token current  = currentToken(); // getting current token
-
-    // adding S
+    // B has different production alternatives that are mutually exclusive
+    // We should use if-else-if to ensure only one path is taken
+    
+    // B -> S
     if (current.tokenInstance == "\"" || current.tokenInstance == "(")
     {
         nodeForB->addChildren(S());
+        return nodeForB;
     }
-    // adding C non-terminal
-    if (current.tokenInstance == "#" || current.tokenInstance == "!")
+    // B -> C
+    else if (current.tokenInstance == "#" || current.tokenInstance == "!")
     {
-        nodeForB ->addChildren(C());
+        nodeForB->addChildren(C());
+        return nodeForB;
     }
-    // adding D non-terminal
-    if (current.tokenInstance == "$")
+    // B -> D
+    else if (current.tokenInstance == "$")
     {
         nodeForB->addChildren(D());
+        return nodeForB;
     }
-    // adding E non-terminal
-    if (current.tokenInstance == "'")
+    // B -> E
+    else if (current.tokenInstance == "'")
     {
         nodeForB->addChildren(E());
+        return nodeForB;
     }
-    // adding G non-terminal
-    if (current.tokenID == t2_tk)
+    // B -> G
+    else if (current.tokenID == t2_tk)
     {
         nodeForB->addChildren(G());
+        return nodeForB;
     }
-    // returning one of the B options
-    return nodeForB;
+    else
+    {
+        // If none of the production rules match
+        parsingError("Valid start of B production (one of: \", (, #, !, $, ', or t2 token)");
+    }
+    
+    return nodeForB;  // This line will never be reached due to parsingError, but included for completeness
 }
 
 node* C()
@@ -245,37 +257,41 @@ node* E()
 
 node* F()
 {
-    node* nodeForF = new node("F"); // creating non-terminal node for F
-
-    // adding t2 token
+    node* nodeForF = new node("F");
+    
+    // Check for t2 token
     if (currentToken().tokenID == t2_tk)
     {
         node* tokenTwo = new node("t2", currentToken().tokenInstance);
         nodeForF->addChildren(tokenTwo);
         nextToken();
+        return nodeForF;  // Return after processing t2
     }
-    // adding t3 token
-    if (currentToken().tokenID == t3_tk)
+    // Check for t3 token
+    else if (currentToken().tokenID == t3_tk)
     {
         node* tokenThree = new node("t3", currentToken().tokenInstance);
         nodeForF->addChildren(tokenThree);
         nextToken();
+        return nodeForF;  // Return after processing t3
     }
-    if (currentToken().tokenInstance == "&")
+    // Check for & symbol
+    else if (currentToken().tokenInstance == "&")
     {
         node* andSymbol = new node("t1", "&");
         nodeForF->addChildren(andSymbol);
         nextToken();
-
+        
         // now the F's
-        nodeForF->addChildren(F()); // first F
-        nodeForF->addChildren(F()); // second F
+        nodeForF->addChildren(F());
+        nodeForF->addChildren(F());
+        return nodeForF;
     }
     else
     {
         parsingError("Need t2_tk, t3_tk, or & for F non-termial grammar");
     }
-    // return result of F
+    
     return nodeForF;
 }
 

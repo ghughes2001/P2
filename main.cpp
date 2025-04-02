@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
     }
     // calling parser
-    node* tokenTree = parser(fileName);
+    node* tokenTree = (node*) parser(fileName);
     //printing tree
     printTree(tokenTree, 0);
     // cleaning memory

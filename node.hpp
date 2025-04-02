@@ -7,7 +7,7 @@ node.hpp:
 */
 
 #ifndef _NODE_HPP_
-#define _NODE_HPPP_
+#define _NODE_HPP_
 
 #include <string>
 #include <vector>
