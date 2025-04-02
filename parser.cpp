@@ -65,36 +65,49 @@ void nextToken()
 // S -> A(BB)
 node* S()
 {
-    node* nodeForS = new node("S"); // creating non-terminal S(root)
-
-    nodeForS->addChildren(A()); // creating A (non-terminal)(node)
-
+    node* nodeForS = new node("S");  // creating non-terminal S(root)
+    nodeForS->addChildren(A());      // creating A (non-terminal)(node)
+    
     if (currentToken().tokenInstance == "(")
     {
-        node* leftParenthesis = new node("t1", "("); // creating left parenth
-        nodeForS->addChildren(leftParenthesis); // adding left penth to tree as child
+        node* leftParenthesis = new node("t1", "(");
+        nodeForS->addChildren(leftParenthesis);
         nextToken();
     }
     else
     {
         parsingError("( in S non-terminal grammar");
     }
-    // adding the two B non-terminals
+    
+    // Adding the first B non-terminal
     nodeForS->addChildren(B());
-    nodeForS->addChildren(B());
-
-    // handing the end parenth (')')
+    
+    // Check if we need to process second B or if we're already at closing parenthesis
+    if (currentToken().tokenInstance != ")")
+    {
+        nodeForS->addChildren(B());
+    }
+    else
+    {
+        // Add an empty B node
+        node* emptyB = new node("B");
+        node* empty = new node("EMPTY");
+        emptyB->addChildren(empty);
+        nodeForS->addChildren(emptyB);
+    }
+    
+    // Handling the end parenthesis
     if (currentToken().tokenInstance == ")")
     {
-        node* rightParenthesis = new node("t1", ")"); // creating right parenth
-        nodeForS->addChildren(rightParenthesis); // adding right penth to tree as child
+        node* rightParenthesis = new node("t1", ")");
+        nodeForS->addChildren(rightParenthesis);
         nextToken();
     }
     else
     {
-        parsingError(")");
+        parsingError("Expected ) at end of S production");
     }
-    // return result
+    
     return nodeForS;
 }
 
@@ -135,8 +148,7 @@ node* B()
     node* nodeForB = new node("B");  // creating non-terminal B node
     Token current = currentToken();  // getting current token
 
-    // B has different production alternatives that are mutually exclusive
-    // We should use if-else-if to ensure only one path is taken
+    // B can derive S, C, D, E, or G - need to check each possibility
     
     // B -> S
     if (current.tokenInstance == "\"" || current.tokenInstance == "(")
@@ -168,13 +180,20 @@ node* B()
         nodeForB->addChildren(G());
         return nodeForB;
     }
+    else if (current.tokenInstance == ")")
+    {
+        // B can be empty - add an EMPTY node
+        node* empty = new node("EMPTY");
+        nodeForB->addChildren(empty);
+        return nodeForB;
+    }
     else
     {
         // If none of the production rules match
         parsingError("Valid start of B production (one of: \", (, #, !, $, ', or t2 token)");
     }
     
-    return nodeForB;  // This line will never be reached due to parsingError, but included for completeness
+    return nodeForB;  // This line will never be reached due to parsingError
 }
 
 node* C()
